@@ -25,4 +25,25 @@ function romanToInt(romanStr) {
     return res;
 }
 
+const reverseString = (s) => s.split("").reverse().join("")
+
+function romanToIntReversed(romanStr) {
+    let res = 0;
+    let previous = null;
+    for (const symbol of reverseString(romanStr)) {
+        const current = ROMAN_TO_INT[symbol];
+        if (previous && current < previous) {
+            res -= current
+            previous = null;
+            continue;
+        }
+
+        previous = current;
+        res += current;
+    }
+    return res;
+}
+
+
 console.log(romanToInt('CXCIII'), 193);
+console.log(romanToIntReversed('CXCIII'), 193);

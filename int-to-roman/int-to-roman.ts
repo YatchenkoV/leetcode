@@ -1,3 +1,5 @@
+import * as process from "process";
+
 const swapKeysAndValues = (obj: Record<string, number>): Record<number, string> => Object.entries(obj).reduce((ret, [key, value]) => Object.assign(ret, {[value]: key}), {});
 const ROMAN_TO_INT: Record<string, number> = {
     "I": 1,
@@ -9,8 +11,6 @@ const ROMAN_TO_INT: Record<string, number> = {
     "M": 1000
 }
 
-const FULL_PARTS = [1, 10, 100, 1000]
-
 const PRIOR: Record<string, string> = {
     "M": "C",
     "D": "C",
@@ -21,12 +21,6 @@ const PRIOR: Record<string, string> = {
 }
 
 const INT_TO_ROMAN: Record<number, string> = swapKeysAndValues(ROMAN_TO_INT);
-
-const romanSymbolToInt = (romanSymbol: string): number => {
-    return ROMAN_TO_INT[romanSymbol]
-}
-const stringToArray = (s: string): string[] => s.split('')
-const reverseString = (s: string): string => stringToArray(s).reverse().join('')
 
 function findClosestIntByRomanRules(int: number): number {
     if (INT_TO_ROMAN.hasOwnProperty(int)) return int;
@@ -62,8 +56,8 @@ function partToRoman(num: number): string {
     if (INT_TO_ROMAN.hasOwnProperty(num)) return INT_TO_ROMAN[num];
     let res = '';
     let remainingIntPart = num
-    while (remainingIntPart) {
-        let closestInt = findClosestIntByRomanRules(num);
+    while (remainingIntPart > 0) {
+        let closestInt = findClosestIntByRomanRules(remainingIntPart);
         if (closestInt > remainingIntPart) {
             const symbol: string = INT_TO_ROMAN[closestInt]
             res += PRIOR[symbol] + symbol
@@ -76,22 +70,25 @@ function partToRoman(num: number): string {
 }
 
 function intToRoman(num: number): string {
-    let res = '';
-    let divider = 10;
-    while (true) {
-        const part = Math.trunc(num / divider);
-        if (part === 0) {
-            res = partToRoman(num);
-            break;
+    let res: string = '';
+    let divider: number = 10;
+    let processedNumber: number = num;
+    while (processedNumber) {
+        const part = processedNumber % divider;
+        if (part !== 0) {
+            res = partToRoman(part) + res;
+            processedNumber -= part
         }
-
-        res = partToRoman(part) + res;
         divider *= 10;
     }
 
     return res
 }
 
-console.log(intToRoman(Number(process.argv[3]) || 1));
+const args: number[] = process.argv[2] ? process.argv.splice(2, process.argv.length -1).map(Number) : [3, 4, 58, 1996]
+for (const providedInt of args) {
+    console.log('Int representation', providedInt);
+    console.log('Roman representation', intToRoman(providedInt));
+}
 
 

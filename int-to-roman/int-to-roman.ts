@@ -34,8 +34,12 @@ function findClosestIntByRomanRules(int: number): number {
             continue;
         }
         if (delta < 0) {
-            // case of 1, 10, 100, 1000
+            // If delta is < 0, it means that current value (known roman-to-int accordance) is bigger than provided int.
+
             if (Number.isInteger(Math.log10(Math.abs(delta)))) {
+                // if number is 10,100,1000
+                // Knowing that numbers before 10^n are represented differently (IX = 9)
+                // Then if delta is < 0 and int to check is a 10^n number, then this is the closest one for roman representation
                 return Number(i);
             }
             return closest;
@@ -84,6 +88,7 @@ function intToRoman(num: number): string {
 
     return res
 }
+intToRoman(9)
 
 const args: number[] = process.argv[2] ? process.argv.splice(2, process.argv.length -1).map(Number) : [3, 4, 58, 1996]
 for (const providedInt of args) {

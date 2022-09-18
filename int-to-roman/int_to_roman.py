@@ -1,24 +1,19 @@
-import math
-
 import pytest
 
 ROMAN_TO_INT = {
     "I": 1,
+    "IV": 4,
     "V": 5,
+    "IX": 9,
     "X": 10,
+    "XL": 40,
     "L": 50,
+    "XC": 90,
     "C": 100,
+    "CD": 400,
     "D": 500,
+    "CM": 900,
     "M": 1000
-}
-
-PRIOR = {
-    "M": "C",
-    "D": "C",
-    "C": "X",
-    "L": "X",
-    "X": "I",
-    "V": "I",
 }
 
 INT_TO_ROMAN = {v: k for k, v in ROMAN_TO_INT.items()}
@@ -26,32 +21,19 @@ INT_TO_ROMAN = {v: k for k, v in ROMAN_TO_INT.items()}
 
 def find_closest_int_by_roman_rules(num: int) -> int:
     if INT_TO_ROMAN.get(num): return num
-    closest = -1
-    delta_with_closest = None
+    closest = 1
+    delta_with_closest = float('infinity')
     for i in INT_TO_ROMAN.keys():
         delta = num - i
-        if (delta_with_closest is None):
-            delta_with_closest = delta
-            closest = i
-            continue
 
-        if delta < 0:
+        if delta < 0 or delta >= delta_with_closest:
             # If delta is < 0, it means that current value (known roman-to-int accordance) is bigger than provided int.
-
-            if float(math.log10(abs(delta))).is_integer():
-                # if number is 10,100,1000
-                # Knowing that numbers before 10^n are represented differently (IX = 9)
-                # Then if delta is < 0 and int to check is a 10^n number, then this is the closest one for roman representation
-                return i
             return closest
 
-        if abs(delta) < abs(delta_with_closest):
+        if (delta_with_closest is None) or abs(delta) < abs(delta_with_closest):
             delta_with_closest = delta
             closest = i
             continue
-
-        if delta >= delta_with_closest: return closest
-
     return closest
 
 
@@ -62,12 +44,7 @@ def part_to_roman(num: int) -> str:
     remaining_int_part = num
     while remaining_int_part > 0:
         closest_int: int = find_closest_int_by_roman_rules(remaining_int_part)
-        if closest_int > remaining_int_part:
-            symbol = INT_TO_ROMAN[closest_int]
-            res += PRIOR[symbol] + symbol
-        else:
-            res += INT_TO_ROMAN[closest_int]
-
+        res += INT_TO_ROMAN[closest_int]
         remaining_int_part -= closest_int
 
     return res
@@ -109,4 +86,4 @@ def int_to_roman_fixture(request):
 
 def test_int_to_roman(int_to_roman_fixture):
     number, roman_str = int_to_roman_fixture
-    assert roman_str == int_to_roman(number)
+    assert roman_str == int_to_roman_v1(number)

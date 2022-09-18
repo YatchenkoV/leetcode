@@ -16,51 +16,22 @@ ROMAN_TO_INT = {
     "M": 1000
 }
 
-INT_TO_ROMAN = {v: k for k, v in ROMAN_TO_INT.items()}
-
-
-def find_closest_int_by_roman_rules(num: int) -> int:
-    if INT_TO_ROMAN.get(num): return num
-    closest = 1
-    delta_with_closest = float('infinity')
-    for i in INT_TO_ROMAN.keys():
-        delta = num - i
-
-        if delta < 0 or delta >= delta_with_closest:
-            # If delta is < 0, it means that current value (known roman-to-int accordance) is bigger than provided int.
-            return closest
-
-        if (delta_with_closest is None) or abs(delta) < abs(delta_with_closest):
-            delta_with_closest = delta
-            closest = i
-            continue
-    return closest
-
-
-def part_to_roman(num: int) -> str:
-    if simple_number := INT_TO_ROMAN.get(num): return simple_number
-
-    res = ''
-    remaining_int_part = num
-    while remaining_int_part > 0:
-        closest_int: int = find_closest_int_by_roman_rules(remaining_int_part)
-        res += INT_TO_ROMAN[closest_int]
-        remaining_int_part -= closest_int
-
-    return res
-
 
 def int_to_roman(num: int) -> str:
+    """
+    Count floor division (//) from largest to smallest roman ints.
+    It equals number of occurrences of roman_int in provided num.
+    """
     res: str = ''
-    divider: int = 10
     processed_int: int = num
-
-    while processed_int != 0:
-        part = processed_int % divider
-        if part != 0:
-            res = part_to_roman(part) + res
-            processed_int -= part
-        divider *= 10
+    for roman_str, value in reversed(ROMAN_TO_INT.items()):
+        count_occurrences = processed_int // value
+        if count_occurrences == 0:
+            continue
+        res += roman_str * count_occurrences
+        processed_int %= value
+        if processed_int == 0:
+            return res
 
     return res
 
@@ -86,4 +57,4 @@ def int_to_roman_fixture(request):
 
 def test_int_to_roman(int_to_roman_fixture):
     number, roman_str = int_to_roman_fixture
-    assert roman_str == int_to_roman_v1(number)
+    assert roman_str == int_to_roman(number)
